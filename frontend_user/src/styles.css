@@ -1,0 +1,4 @@
+/* Estilos globales. Bootstrap e iconos se cargan desde angular.json */
+body {
+  background-color: #f6f7f9;
+}
