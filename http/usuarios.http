@@ -1,0 +1,94 @@
+GET http://localhost:3000/api/users
+
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+### 1. Listar usuarios -> 200
+GET {{baseUrl}}/users
+
+### 2. Crear un usuario -> 201
+# @name crearUsuario
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+ "name": "Juan Torres",
+ "email": "juan{{$randomInt 1000 99999}}@mail.com"
+}
+
+### 3. Obtener el usuario recién creado -> 200
+GET {{baseUrl}}/users/{{crearUsuario.response.body.$.id}}
+
+### 4. Actualizar el usuario creado -> 200
+PUT {{baseUrl}}/users/{{crearUsuario.response.body.$.id}}
+Content-Type: {{contentType}}
+
+{
+ "name": "Ana María Torres"
+}
+
+### 5. Asignación masiva: enviar id y role -> 201 (sin role, id asignado por la BD)
+# @name crearConRol
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+ "name": "Luis Pérez",
+ "email": "luis{{$randomInt 1000 99999}}@mail.com",
+ "id": 999,
+ "role": "admin"
+}
+
+### 6. Email duplicado -> 409
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+ "name": "Ana Duplicada",
+ "email": "{{crearUsuario.response.body.$.email}}"
+}
+
+### 7. Campos obligatorios vacíos -> 400
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{}
+
+### 8. Email con formato inválido -> 400
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+ "name": "Pedro",
+ "email": "no-es-un-email"
+}
+
+
+### 9. JSON mal formado -> 400
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{ "name": "Rosa",
+
+
+### 10. PUT sin campos permitidos -> 400
+PUT {{baseUrl}}/users/{{crearUsuario.response.body.$.id}}
+Content-Type: {{contentType}}
+
+{
+ "foo": 1
+}
+
+### 11. Id que no existe -> 404
+GET {{baseUrl}}/users/999999
+### 12. Id no numérico -> 400
+
+GET {{baseUrl}}/users/abc
+
+### 13. Eliminar el usuario creado en la petición 5 -> 204
+DELETE {{baseUrl}}/users/{{crearConRol.response.body.$.id}}
+
+### 14. Eliminarlo otra vez -> 404
+DELETE {{baseUrl}}/users/{{crearConRol.response.body.$.id}}
+
+### 15. Ruta inexistente -> 404
+GET {{baseUrl}}/productos
